@@ -89,7 +89,7 @@ _alias_tips__download() {
   # binary is not reachable through it (front, so it wins over system
   # binaries of the same name).
   if [[ -z ${path[(r)$dest]} ]]; then
-    if read -q "?alias-tips-rs: add $dest to PATH? [y/N] "; then
+    if _alias_tips__prompt "add $dest to PATH? [y/N] "; then
       echo
       path=($dest $path)
       echo "alias-tips-rs: added $dest to PATH (this session only)" >&2
@@ -120,7 +120,7 @@ _alias_tips__resolve_bin() {
   fi
 
   echo "alias-tips-rs: binary not found." >&2
-  if read -q "?alias-tips-rs: download it from github.com/${ALIAS_TIPS_GITHUB}? [y/N] "; then
+  if _alias_tips__prompt "download it from github.com/${ALIAS_TIPS_GITHUB}? [y/N] "; then
     echo
     _alias_tips__download $target $ALIAS_TIPS_DEST || return 1
     _alias_tips__bin=$ALIAS_TIPS_DEST/alias-tips-rs
@@ -128,6 +128,17 @@ _alias_tips__resolve_bin() {
   fi
   echo
   return 1
+}
+
+# Ask a yes/no question on stdin. Works in interactive shells (line editing)
+# and when stdin is piped/scripted, unlike read -q which requires a terminal.
+_alias_tips__prompt() {
+  local answer
+  printf "alias-tips-rs: %s" "$1" >&2
+  if ! read answer; then
+    return 1
+  fi
+  [[ $answer == [yY]* ]]
 }
 
 _alias_tips__preexec() {
