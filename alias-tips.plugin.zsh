@@ -29,12 +29,22 @@ typeset -g _alias_tips__bin=""
 # Map the machine architecture to a release target triple.
 _alias_tips__target() {
   local os=$(uname -s) arch=$(uname -m)
-  # Only Linux targets are built; don't suggest downloading them elsewhere.
-  [[ $os == Linux ]] || return 1
   case $arch in
-    x86_64|amd64) echo x86_64-unknown-linux-musl ;;
-    aarch64|arm64) echo aarch64-unknown-linux-musl ;;
-    armv7l|armv7) echo armv7-unknown-linux-musleabihf ;;
+    x86_64|amd64)
+      case $os in
+        Linux) echo x86_64-unknown-linux-musl ;;
+        Darwin) echo x86_64-apple-darwin ;;
+      esac
+      ;;
+    aarch64|arm64)
+      case $os in
+        Linux) echo aarch64-unknown-linux-musl ;;
+        Darwin) echo aarch64-apple-darwin ;;
+      esac
+      ;;
+    armv7l|armv7)
+      [[ $os == Linux ]] && echo armv7-unknown-linux-musleabihf
+      ;;
     *) return 1 ;;
   esac
 }
@@ -111,7 +121,7 @@ _alias_tips__resolve_bin() {
 
   local target
   if ! target=$(_alias_tips__target); then
-    echo "alias-tips-rs: unsupported architecture: $(uname -m)" >&2
+    echo "alias-tips-rs: unsupported OS/architecture: $(uname -s)/$(uname -m)" >&2
     return 1
   fi
 
