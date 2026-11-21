@@ -1,0 +1,24 @@
+# Cross-compilation to static musl binaries: one binary per architecture,
+# runs on any Linux regardless of the host libc.
+#
+# Link with rust-lld (bundled with the toolchain): musl targets don't need a
+# system linker or musl-gcc. No pi-tools/docker/cross needed.
+#
+#   cargo build --release --target=<target>
+#
+# Targets:
+#   x86_64-unknown-linux-musl
+#   aarch64-unknown-linux-musl
+#   armv7-unknown-linux-musleabihf
+
+[target.x86_64-unknown-linux-musl]
+linker = "rust-lld"
+rustflags = ["-C", "link-self-contained=yes"]
+
+[target.aarch64-unknown-linux-musl]
+linker = "rust-lld"
+rustflags = ["-C", "link-self-contained=yes"]
+
+[target.armv7-unknown-linux-musleabihf]
+linker = "rust-lld"
+rustflags = ["-C", "link-self-contained=yes"]
